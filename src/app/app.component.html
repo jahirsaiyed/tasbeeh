@@ -7,45 +7,29 @@
 
             <div class="mb-md-5 mt-md-4 pb-5">
               <br/>
-              
-              <div class="form-outline form-white mb-4">
+
+              <div class="form-outline form-white mb-4 add-tasbeeh-row">
                 <input type="email" class="form-control form-control-lg" [(ngModel)]="newTasbeeh" placeholder="Tasbeeh Name" />
-                <br/>
-                <button class="btn btn-outline-light btn-lg px-5" (click)="addNewTasbeeh()">Add new Tasbeeh</button>
+                <button class="btn btn-outline-light btn-lg px-4" (click)="addNewTasbeeh()">New</button>
+                <button class="btn btn-outline-light btn-lg px-5" (click)="resetCount()">Reset</button>
               </div>
               <br/>
-              <select [(ngModel)]="selectedId" (change)="changeGroup()">
-                <option *ngFor="let gr of groups" [value]="gr.id" > {{gr.name}} </option> 
-                
-              </select>
-<div *ngIf="selectedId > 0">
-              <h1 class="fw-bold mb-2 text-uppercase" >{{selectedGroup.name}}</h1>
-              <!-- <img src="../assets/counter.png"/> -->
-              <!-- <p class="text-white-50 mb-5">Please enter your login and password!</p> -->
-
-              <div class="form-outline form-white mb-4">
-                <!-- <input type="email" id="typeEmailX" class="form-control form-control-lg" /> -->
-                <h2 class="form-label" for="typeEmailX">{{selectedGroup.count}}</h2>
+              <div class="dropdown-count-row mb-4">
+                <h2 *ngIf="selectedId > 0" class="count-display mb-0">{{selectedGroup.count}}</h2>
+                <select [(ngModel)]="selectedId" (change)="changeGroup()">
+                  <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
+                </select>
               </div>
-
-              <div class="form-outline form-white mb-4">
-                <!-- <input type="password" id="typePasswordX" class="form-control form-control-lg" /> -->
-                <!-- <label class="form-label" for="typePasswordX">Password</label> -->
-              </div>
-
-              <!-- <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#!">Forgot password?</a></p> -->
-
-              <!-- <button class="btn btn-outline-light btn-lg px-5" (click)="addCount()">Count</button> -->
-              <button class="btn btn-outline-light btn-lg px-5" (click)="resetCount()">Reset</button>
-
-</div>
               <br/>
               <!-- <label class="form-label" >Add new tasbeeh</label> -->
-              <p>
-                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"
-              </p>
+<!--              <p>-->
+<!--                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"-->
+<!--              </p>-->
+              <div class="kalima-image mb-3">
+                <img src="assets/kalima.jfif" alt="Kalima" />
+              </div>
               <p class="bottombutton">
-                <img src="../assets/press.jpg" (click)="addCount()"/>
+                <img src="assets/press.jpg" (click)="addCount()"/>
               </p>
 
             </div>

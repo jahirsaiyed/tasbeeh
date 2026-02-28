@@ -230,6 +230,57 @@
     color:  #00A4E4;
 }
 
+.dropdown-count-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+.dropdown-count-row select {
+  min-width: 160px;
+}
+.count-display {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.add-tasbeeh-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.add-tasbeeh-row .form-control {
+  flex: 1;
+  min-width: 140px;
+}
+.add-tasbeeh-row .btn {
+  flex-shrink: 0;
+}
+
+.middle-image {
+  margin: 1rem 0;
+  text-align: center;
+  min-height: 120px;
+}
+.middle-image img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
+.kalima-image {
+  text-align: center;
+}
+.kalima-image img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
 .bottombutton {
     height: 330px;
     width: 330px;

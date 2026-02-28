@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { group } from 'console';
 
 @Component({
   selector: 'app-root',
@@ -15,8 +14,8 @@ export class AppComponent {
     new TasbeehGroup(4, 0, 'Durood'),
     new TasbeehGroup(5, 0, 'Names of Allah')
   ];
-  selectedId =0;
-  selectedGroup = this.groups[this.selectedId];
+  selectedId = 1;
+  selectedGroup = this.groups[1];
   newTasbeeh = '';
 
   addCount() {
