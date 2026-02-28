@@ -229,3 +229,13 @@
     border-color: #00A4E4;
     color:  #00A4E4;
 }
+
+.bottombutton {
+    height: 330px;
+    width: 330px;
+    display: flex;
+    align-items: right;
+    /* position: absolute; */
+right: 0px;
+bottom: 0px;
+}

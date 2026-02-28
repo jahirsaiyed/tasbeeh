@@ -22,6 +22,22 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 Before running the tests make sure you are serving the app via `ng serve`.
 
+## Deploying to Firebase (CI/CD)
+
+Pushes to the `master` branch trigger a GitHub Action that builds and deploys to [Firebase Hosting](https://firebase.google.com/docs/hosting).
+
+### One-time setup
+
+1. **Create a Firebase service account key**  
+   In [Firebase Console](https://console.firebase.google.com/) → your project → **Project settings** → **Service accounts** → **Generate new private key**.
+
+2. **Add the key as a GitHub secret**  
+   In your repo: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.  
+   Name: `FIREBASE_SERVICE_ACCOUNT`.  
+   Value: paste the entire contents of the downloaded JSON file.
+
+After that, every push to `master` will build and deploy automatically.
+
 ## Deploying to GitHub Pages
 
 Run `ng github-pages:deploy` to deploy to GitHub Pages.

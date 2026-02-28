@@ -8,7 +8,7 @@ import { group } from 'console';
 })
 export class AppComponent {
   groups = [
-    new TasbeehGroup(0, 0, 'Select Tasbeeh'),
+    new TasbeehGroup(0, 0, '-- Select Tasbeeh --'),
     new TasbeehGroup(1, 0, 'Kalima'),
     new TasbeehGroup(2, 0, 'Istigfar'),
     new TasbeehGroup(3, 0, 'Midad'),
