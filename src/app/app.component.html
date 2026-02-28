@@ -66,16 +66,14 @@
   </div>
 </div>
 
-<section class="vh-100 gradient-custom">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
+<section class="tasbeeh-page gradient-custom">
+  <div class="container tasbeeh-container">
+    <div class="row d-flex justify-content-center align-items-center tasbeeh-row">
       <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-        <div class="card bg-dark text-white" style="border-radius: 1rem;">
-          <div class="card-body p-5 text-center">
+        <div class="card bg-dark text-white tasbeeh-card">
+          <div class="card-body tasbeeh-card-body text-center">
 
-            <div class="mb-md-5 mt-md-4 pb-5">
-              <br/>
-
+            <div class="tasbeeh-content">
               <div class="controls-row mb-4">
                 <span *ngIf="selectedGroup" class="count-display">{{selectedGroup.count}}</span>
                 <select class="controls-select" [(ngModel)]="selectedId" (change)="changeGroup()">
@@ -89,14 +87,12 @@
 <!--                  <input type="checkbox" [(ngModel)]="showImages" (ngModelChange)="saveToStorage()" />-->
 <!--                </label>-->
               </div>
-              <br/>
               <div class="image-slot">
                 <img *ngIf="selectedGroup && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
               <p class="bottombutton">
-                <img src="assets/press.jpg" (click)="addCount()"/>
+                <img src="assets/press.jpg" (click)="addCount()" alt="Tap to count"/>
               </p>
-
             </div>
           </div>
         </div>
