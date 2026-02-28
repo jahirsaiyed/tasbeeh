@@ -271,6 +271,17 @@
   border-radius: 0.5rem;
 }
 
+.image-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+.image-toggle-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .image-slot {
   width: 100%;
   height: 200px;

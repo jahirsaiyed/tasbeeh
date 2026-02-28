@@ -19,6 +19,10 @@
                 <select [(ngModel)]="selectedId" (change)="changeGroup()">
                   <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
                 </select>
+                <label class="image-toggle-label mb-0">
+                  <input type="checkbox" [(ngModel)]="showImages" />
+                  <span class="image-toggle-text">Show images</span>
+                </label>
               </div>
               <br/>
               <!-- <label class="form-label" >Add new tasbeeh</label> -->
@@ -26,7 +30,7 @@
 <!--                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"-->
 <!--              </p>-->
               <div class="image-slot">
-                <img *ngIf="selectedId > 0 && selectedGroup.image" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
+                <img *ngIf="selectedId > 0 && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
               <p class="bottombutton">
                 <img src="assets/press.jpg" (click)="addCount()"/>

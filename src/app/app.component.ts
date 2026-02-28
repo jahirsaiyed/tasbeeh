@@ -17,6 +17,7 @@ export class AppComponent {
   selectedId = 1;
   selectedGroup = this.groups[1];
   newTasbeeh = '';
+  showImages = true;
 
   addCount() {
     this.selectedGroup.count++;
