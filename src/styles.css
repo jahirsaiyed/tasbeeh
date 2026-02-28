@@ -1,1 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Prevent double-tap zoom on iOS and other mobile browsers */
+html {
+  touch-action: manipulation;
+}
+body {
+  touch-action: manipulation;
+}
