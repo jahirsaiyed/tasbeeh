@@ -13,7 +13,7 @@
           <ul class="settings-list">
             <li *ngFor="let gr of groups; let i = index" class="settings-list-item">
               <span class="settings-list-name">{{ gr.name }}</span>
-              <span class="settings-list-actions" *ngIf="i > 0">
+              <span class="settings-list-actions">
                 <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditForm(gr)">Edit</button>
                 <button type="button" class="btn btn-sm btn-danger" (click)="deleteTasbeeh(i)">Delete</button>
               </span>
@@ -77,9 +77,9 @@
               <br/>
 
               <div class="controls-row mb-4">
-                <span *ngIf="selectedId > 0" class="count-display">{{selectedGroup.count}}</span>
+                <span *ngIf="selectedGroup" class="count-display">{{selectedGroup.count}}</span>
                 <select class="controls-select" [(ngModel)]="selectedId" (change)="changeGroup()">
-                  <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
+                  <option *ngFor="let gr of groups; let i = index" [value]="i">{{gr.name}}</option>
                 </select>
                 <button type="button" class="btn btn-outline-light btn-lg px-2" (click)="openSettingsModal()" title="Settings" aria-label="Settings">
                   <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -95,7 +95,7 @@
 <!--                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"-->
 <!--              </p>-->
               <div class="image-slot">
-                <img *ngIf="selectedId > 0 && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
+                <img *ngIf="selectedGroup && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
               <p class="bottombutton">
                 <img src="assets/press.jpg" (click)="addCount()"/>
