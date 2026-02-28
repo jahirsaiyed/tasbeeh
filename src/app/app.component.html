@@ -1,3 +1,34 @@
+<!-- New Tasbeeh modal -->
+<div class="modal-overlay" *ngIf="showNewModal" (click)="closeNewModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add new tasbeeh</h5>
+        <button type="button" class="modal-close" aria-label="Close" (click)="closeNewModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newTasbeehName">Name of dhikr</label>
+          <input type="text" id="newTasbeehName" class="form-control" [(ngModel)]="newTasbeehName" placeholder="e.g. Kalima" />
+        </div>
+        <div class="form-group">
+          <label>Image (optional)</label>
+          <input type="file" #modalImageInput style="display:none" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onModalImageSelected($event)" />
+          <button type="button" class="btn btn-outline-secondary btn-block" (click)="modalImageInput.click()" [disabled]="uploadInProgress">
+            {{ uploadInProgress ? 'Uploading…' : (newTasbeehImageUrl ? 'Image uploaded' : 'Upload image') }}
+          </button>
+          <p class="text-muted small mt-1 mb-0" *ngIf="newTasbeehImageUrl">Image will be stored with this tasbeeh.</p>
+          <p class="text-danger small mt-1 mb-0" *ngIf="uploadError">{{ uploadError }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeNewModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="submitNewTasbeeh()" [disabled]="!newTasbeehName.trim()">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section class="vh-100 gradient-custom">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
@@ -10,10 +41,10 @@
 
               <div class="controls-row mb-4">
                 <span *ngIf="selectedId > 0" class="count-display">{{selectedGroup.count}}</span>
-                <select [(ngModel)]="selectedId" (change)="changeGroup()">
+                <select class="controls-select" [(ngModel)]="selectedId" (change)="changeGroup()">
                   <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
                 </select>
-                <button type="button" class="btn btn-outline-light btn-lg px-3" (click)="addNewTasbeeh()">New</button>
+                <button type="button" class="btn btn-outline-light btn-lg px-3" (click)="openNewModal()">New</button>
                 <button type="button" class="btn btn-outline-light btn-lg px-4" (click)="resetCount()">Reset</button>
                 <label class="image-toggle-label mb-0">
                   <input type="checkbox" [(ngModel)]="showImages" />
