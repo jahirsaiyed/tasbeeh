@@ -47,7 +47,7 @@
                 <button type="button" class="btn btn-outline-light btn-lg px-3" (click)="openNewModal()">New</button>
                 <button type="button" class="btn btn-outline-light btn-lg px-4" (click)="resetCount()">Reset</button>
                 <label class="image-toggle-label mb-0">
-                  <input type="checkbox" [(ngModel)]="showImages" />
+                  <input type="checkbox" [(ngModel)]="showImages" (ngModelChange)="saveToStorage()" />
                 </label>
               </div>
               <br/>
