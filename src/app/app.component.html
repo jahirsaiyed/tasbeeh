@@ -9,7 +9,7 @@
       <div class="modal-body">
         <!-- List view -->
         <div *ngIf="!showAddForm && editingId === null">
-          <button type="button" class="btn btn-primary btn-block mb-3" (click)="showAddForm = true; resetAddForm()">Add new tasbeeh</button>
+          <button type="button" class="btn btn-primary btn-block mb-3" (click)="openAddForm()">Add new tasbeeh</button>
           <ul class="settings-list">
             <li *ngFor="let gr of groups; let i = index" class="settings-list-item">
               <span class="settings-list-name">{{ gr.name }}</span>
@@ -37,7 +37,7 @@
             <p class="text-danger small mt-1 mb-0" *ngIf="uploadError">{{ uploadError }}</p>
           </div>
           <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" (click)="showAddForm = false; resetAddForm()">Cancel</button>
+            <button type="button" class="btn btn-secondary" (click)="cancelAddForm()">Cancel</button>
             <button type="button" class="btn btn-primary" (click)="submitNewTasbeeh()" [disabled]="!newTasbeehName.trim()">Add</button>
           </div>
         </div>
@@ -90,10 +90,6 @@
                 </label>
               </div>
               <br/>
-              <!-- <label class="form-label" >Add new tasbeeh</label> -->
-<!--              <p>-->
-<!--                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"-->
-<!--              </p>-->
               <div class="image-slot">
                 <img *ngIf="selectedGroup && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
