@@ -69,7 +69,7 @@
 <section class="tasbeeh-page gradient-custom">
   <div class="container tasbeeh-container">
     <div class="row d-flex justify-content-center align-items-center tasbeeh-row">
-      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5 tasbeeh-col">
         <div class="card bg-dark text-white tasbeeh-card">
           <div class="card-body tasbeeh-card-body text-center">
 
@@ -90,9 +90,12 @@
               <div class="image-slot">
                 <img *ngIf="selectedGroup && selectedGroup.image && showImages" [src]="selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
-              <p class="bottombutton">
-                <img src="assets/press.jpg" (click)="addCount()" alt="Tap to count"/>
-              </p>
+              <div class="tap-to-count-zone" (click)="addCount()">
+                <p class="bottombutton">
+                  <img src="assets/press.jpg" alt="Tap to count"/>
+                </p>
+                <div class="tap-zone-fill" aria-hidden="true"></div>
+              </div>
             </div>
           </div>
         </div>
