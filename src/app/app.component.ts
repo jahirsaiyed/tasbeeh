@@ -7,12 +7,12 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   groups = [
-    new TasbeehGroup(0, 0, '-- Select Tasbeeh --'),
-    new TasbeehGroup(1, 0, 'Kalima'),
-    new TasbeehGroup(2, 0, 'Istigfar'),
-    new TasbeehGroup(3, 0, 'Midad'),
-    new TasbeehGroup(4, 0, 'Durood'),
-    new TasbeehGroup(5, 0, 'Names of Allah')
+    new TasbeehGroup(0, 0, '-- Select Tasbeeh --', ''),
+    new TasbeehGroup(1, 0, 'Kalima', 'kalima.jpg'),
+    new TasbeehGroup(2, 0, 'Istigfar', 'istigfar.jpg'),
+    new TasbeehGroup(3, 0, 'Midad', 'midad.jpg'),
+    new TasbeehGroup(4, 0, 'Durood', 'durood.jpg'),
+    new TasbeehGroup(5, 0, 'Names of Allah', 'names-of-allah.jpg')
   ];
   selectedId = 1;
   selectedGroup = this.groups[1];
@@ -29,7 +29,7 @@ export class AppComponent {
       alert("Fill name of tasbeeh !!");
       return;
     }
-    this.groups.push(new TasbeehGroup(this.groups.length, 0, this.newTasbeeh));
+    this.groups.push(new TasbeehGroup(this.groups.length, 0, this.newTasbeeh, ''));
     this.newTasbeeh='';
   }
   changeGroup(){
@@ -42,10 +42,12 @@ class TasbeehGroup {
   id = 0;
   count = 0;
   name = '';
+  image = '';
 
-  constructor(i:number ,c:number, n:string) {
-    this.id=i;
+  constructor(i: number, c: number, n: string, img = '') {
+    this.id = i;
     this.count = c;
     this.name = n;
+    this.image = img;
   }
 }
