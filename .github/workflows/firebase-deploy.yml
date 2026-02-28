@@ -1,17 +1,13 @@
-# Deploy to Firebase Hosting on push to master.
-# Required secret: FIREBASE_SERVICE_ACCOUNT (JSON key from Firebase Console >
-# Project Settings > Service Accounts > Generate new private key).
-# Or run: firebase init hosting:github
-name: Deploy to Firebase Hosting
+# CI: test + build on every push. CD: deploy to Firebase only on master.
+# Required secret for deploy: FIREBASE_SERVICE_ACCOUNT_TASBEEH_A4EA1 (Firebase service account JSON).
+name: CI / Deploy to Firebase
 
 on:
   push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,10 +22,14 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Run tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
       - name: Deploy to Firebase Hosting
+        if: github.ref == 'refs/heads/master'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
