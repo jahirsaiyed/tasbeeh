@@ -446,3 +446,42 @@ bottom: 0px;
 .modal-footer .btn {
   padding: 0.5rem 1rem;
 }
+
+.settings-icon {
+  display: block;
+  color: inherit;
+}
+.modal-dialog-settings {
+  max-width: 420px;
+}
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.settings-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.settings-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+.settings-list-item:last-child {
+  border-bottom: none;
+}
+.settings-list-name {
+  font-weight: 500;
+}
+.settings-list-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+.settings-list-actions .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 12px;
+}
