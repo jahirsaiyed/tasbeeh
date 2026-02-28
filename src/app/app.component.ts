@@ -16,7 +16,6 @@ export class AppComponent implements OnInit {
   ];
   selectedId = 1;
   selectedGroup = this.groups[1];
-  newTasbeeh = '';
   showImages = true;
 
   ngOnInit() {
@@ -39,12 +38,11 @@ export class AppComponent implements OnInit {
     this.selectedGroup.count=0;
   }
   addNewTasbeeh() {
-    if(this.newTasbeeh=='') {
-      alert("Fill name of tasbeeh !!");
-      return;
-    }
-    this.groups.push(new TasbeehGroup(this.groups.length, 0, this.newTasbeeh, ''));
-    this.newTasbeeh = '';
+    const name = prompt('Name of dhikr');
+    if (name == null || name.trim() === '') return;
+    this.groups.push(new TasbeehGroup(this.groups.length, 0, name.trim(), ''));
+    this.selectedId = this.groups.length - 1;
+    this.changeGroup();
   }
   changeGroup(){
     this.selectedGroup = this.groups[this.selectedId];

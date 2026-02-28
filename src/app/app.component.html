@@ -8,20 +8,15 @@
             <div class="mb-md-5 mt-md-4 pb-5">
               <br/>
 
-              <div class="form-outline form-white mb-4 add-tasbeeh-row">
-                <input type="email" class="form-control form-control-lg" [(ngModel)]="newTasbeeh" placeholder="Tasbeeh Name" />
-                <button class="btn btn-outline-light btn-lg px-4" (click)="addNewTasbeeh()">New</button>
-                <button class="btn btn-outline-light btn-lg px-5" (click)="resetCount()">Reset</button>
-              </div>
-              <br/>
-              <div class="dropdown-count-row mb-4">
-                <h2 *ngIf="selectedId > 0" class="count-display mb-0">{{selectedGroup.count}}</h2>
+              <div class="controls-row mb-4">
+                <span *ngIf="selectedId > 0" class="count-display">{{selectedGroup.count}}</span>
                 <select [(ngModel)]="selectedId" (change)="changeGroup()">
                   <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
                 </select>
+                <button type="button" class="btn btn-outline-light btn-lg px-3" (click)="addNewTasbeeh()">New</button>
+                <button type="button" class="btn btn-outline-light btn-lg px-4" (click)="resetCount()">Reset</button>
                 <label class="image-toggle-label mb-0">
                   <input type="checkbox" [(ngModel)]="showImages" />
-                  <span class="image-toggle-text">Show images</span>
                 </label>
               </div>
               <br/>
