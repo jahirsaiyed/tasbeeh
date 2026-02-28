@@ -25,8 +25,8 @@
 <!--              <p>-->
 <!--                Select Tasbeeh from the drop down and start reciting accompanied by tapping the below button. <br/>You can add your own tasbeeh by clicking on the "Add new Tasbeeh"-->
 <!--              </p>-->
-              <div class="kalima-image mb-3">
-                <img src="assets/kalima.jfif" alt="Kalima" />
+              <div class="image-slot">
+                <img *ngIf="selectedId > 0 && selectedGroup.image" [src]="'assets/' + selectedGroup.image" [alt]="selectedGroup.name" />
               </div>
               <p class="bottombutton">
                 <img src="assets/press.jpg" (click)="addCount()"/>
