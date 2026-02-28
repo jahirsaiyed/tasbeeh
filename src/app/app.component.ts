@@ -4,6 +4,8 @@ import 'rxjs/add/operator/map';
 
 const IMAGE2URL_UPLOAD = 'https://www.image2url.com/api/upload';
 const MAX_IMAGE_SIZE_MB = 2;
+const STORAGE_KEY = 'tasbeehGroups';
+const STORAGE_STATE_KEY = 'tasbeehState';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +34,43 @@ export class AppComponent implements OnInit {
   constructor(private http: Http) {}
 
   ngOnInit() {
+    this.loadFromStorage();
     this.preloadImages();
+  }
+
+  private loadFromStorage() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const savedState = localStorage.getItem(STORAGE_STATE_KEY);
+      if (saved) {
+        const raw = JSON.parse(saved);
+        if (Array.isArray(raw) && raw.length > 0) {
+          this.groups = raw.map((g: { id: number; count: number; name: string; image: string }) =>
+            new TasbeehGroup(g.id, g.count, g.name, g.image || '')
+          );
+          if (savedState) {
+            const state = JSON.parse(savedState);
+            if (typeof state.selectedId === 'number' && state.selectedId >= 0 && state.selectedId < this.groups.length) {
+              this.selectedId = state.selectedId;
+            }
+            if (typeof state.showImages === 'boolean') this.showImages = state.showImages;
+          }
+          this.selectedId = Math.min(this.selectedId, this.groups.length - 1);
+          this.selectedId = Math.max(0, this.selectedId);
+          this.changeGroup();
+          return;
+        }
+      }
+    } catch (_) {}
+    this.changeGroup();
+  }
+
+  private saveToStorage() {
+    try {
+      const data = this.groups.map(g => ({ id: g.id, count: g.count, name: g.name, image: g.image }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify({ selectedId: this.selectedId, showImages: this.showImages }));
+    } catch (_) {}
   }
 
   /** Preload group images so the browser caches them for instant display when switching groups. */
@@ -46,9 +84,11 @@ export class AppComponent implements OnInit {
 
   addCount() {
     this.selectedGroup.count++;
+    this.saveToStorage();
   }
   resetCount() {
-    this.selectedGroup.count=0;
+    this.selectedGroup.count = 0;
+    this.saveToStorage();
   }
   openNewModal() {
     this.showNewModal = true;
@@ -101,6 +141,7 @@ export class AppComponent implements OnInit {
     this.selectedId = this.groups.length - 1;
     this.changeGroup();
     this.closeNewModal();
+    this.saveToStorage();
   }
 
   private uploadImageToImage2Url(file: File) {
@@ -115,9 +156,9 @@ export class AppComponent implements OnInit {
       });
   }
 
-  changeGroup(){
+  changeGroup() {
     this.selectedGroup = this.groups[this.selectedId];
-    console.log(this.selectedGroup.name);
+    this.saveToStorage();
   }
 }
 
