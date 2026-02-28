@@ -2,11 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 
+import { TasbeehGroup, createDefaultGroups, createGroupsFromStorage, StoredTasbeehGroup, StoredState } from './tasbeeh-group.model';
+
 const IMAGE2URL_UPLOAD = 'https://www.image2url.com/api/upload';
 const MAX_IMAGE_SIZE_MB = 2;
+const MAX_IMAGE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 const STORAGE_KEY = 'tasbeehGroups';
 const STORAGE_STATE_KEY = 'tasbeehState';
 const PLACEHOLDER_NAME = '-- Select Tasbeeh --';
+const ERROR_IMAGE_TYPE = 'Please choose an image (JPG, PNG, GIF, WebP).';
+const ERROR_IMAGE_SIZE = `Image must be under ${MAX_IMAGE_SIZE_MB}MB.`;
+const ERROR_UPLOAD_FAILED = 'Upload failed. Try again.';
 
 @Component({
   selector: 'app-root',
@@ -14,13 +20,7 @@ const PLACEHOLDER_NAME = '-- Select Tasbeeh --';
   styleUrls: ['./app.component.css', './bootstrap.css']
 })
 export class AppComponent implements OnInit {
-  groups = [
-    new TasbeehGroup(1, 0, 'Kalima', 'https://image2url.com/r2/default/images/1772265243982-0d098860-3900-45d0-8518-d9d2f2ce2501.jpg'),
-    new TasbeehGroup(2, 0, 'Istigfar', 'https://image2url.com/r2/default/images/1772265308437-9e5e0028-a118-48cf-b65b-ab580fc44a23.jpg'),
-    new TasbeehGroup(3, 0, 'Midad', 'https://image2url.com/r2/default/images/1772265331414-e56c776d-5e95-4398-adb4-2a3c877ae5c9.jpg'),
-    new TasbeehGroup(4, 0, 'Durood', 'https://image2url.com/r2/default/images/1772265286311-318b6568-fe90-4832-a710-54f698a80717.jpg'),
-    new TasbeehGroup(5, 0, 'Names of Allah', 'https://image2url.com/r2/default/images/1772265352244-02d5704b-d45c-459a-833b-f8643c1217cf.jpg')
-  ];
+  groups: TasbeehGroup[] = createDefaultGroups();
   selectedId = 0;
   selectedGroup = this.groups[0];
   showImages = true;
@@ -37,67 +37,84 @@ export class AppComponent implements OnInit {
 
   constructor(private http: Http) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadFromStorage();
     this.preloadImages();
   }
 
-  private loadFromStorage() {
+  private loadFromStorage(): void {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const savedState = localStorage.getItem(STORAGE_STATE_KEY);
-      if (saved) {
-        const raw = JSON.parse(saved);
-        if (Array.isArray(raw) && raw.length > 0) {
-          this.groups = raw
-            .map((g: { id: number; count: number; name: string; image: string }) =>
-              new TasbeehGroup(g.id, g.count, g.name, g.image || '')
-            )
-            .filter(g => g.name !== PLACEHOLDER_NAME);
-          for (let i = 0; i < this.groups.length; i++) this.groups[i].id = i;
-          if (this.groups.length === 0) {
-            this.groups = [
-              new TasbeehGroup(0, 0, 'Kalima', 'https://image2url.com/r2/default/images/1772265243982-0d098860-3900-45d0-8518-d9d2f2ce2501.jpg'),
-              new TasbeehGroup(1, 0, 'Istigfar', 'https://image2url.com/r2/default/images/1772265308437-9e5e0028-a118-48cf-b65b-ab580fc44a23.jpg'),
-              new TasbeehGroup(2, 0, 'Midad', 'https://image2url.com/r2/default/images/1772265331414-e56c776d-5e95-4398-adb4-2a3c877ae5c9.jpg'),
-              new TasbeehGroup(3, 0, 'Durood', 'https://image2url.com/r2/default/images/1772265286311-318b6568-fe90-4832-a710-54f698a80717.jpg'),
-              new TasbeehGroup(4, 0, 'Names of Allah', 'https://image2url.com/r2/default/images/1772265352244-02d5704b-d45c-459a-833b-f8643c1217cf.jpg')
-            ];
-          }
-        }
-      }
-      if (savedState) {
-        try {
-          const state = JSON.parse(savedState);
-          const savedIndex = typeof state.selectedId === 'number' ? state.selectedId : parseInt(state.selectedId, 10);
-          if (!isNaN(savedIndex) && savedIndex >= 0 && savedIndex < this.groups.length) {
-            this.selectedId = savedIndex;
-          } else {
-            const idx = this.groups.findIndex(g => g.id === state.selectedId || g.id === savedIndex);
-            if (idx >= 0) this.selectedId = idx;
-          }
-          if (typeof state.showImages === 'boolean') this.showImages = state.showImages;
-        } catch (_) {}
-      }
-      this.selectedId = Math.min(Math.max(0, this.selectedId), this.groups.length - 1);
+      this.loadGroupsFromStorage();
+      this.restoreUiStateFromStorage();
+      this.selectedId = this.clampSelectedIndex(this.selectedId);
       this.changeGroup();
     } catch (_) {
       this.changeGroup();
     }
   }
 
-  private saveToStorage() {
+  private loadGroupsFromStorage(): void {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const raw = JSON.parse(saved) as StoredTasbeehGroup[];
+    if (!Array.isArray(raw) || raw.length === 0) return;
+    this.groups = createGroupsFromStorage(raw).filter(g => g.name !== PLACEHOLDER_NAME);
+    if (this.groups.length === 0) {
+      this.groups = createDefaultGroups();
+      return;
+    }
+    this.reindexGroups();
+  }
+
+  private restoreUiStateFromStorage(): void {
+    const savedState = localStorage.getItem(STORAGE_STATE_KEY);
+    if (!savedState) return;
     try {
-      const data = this.groups.map(g => ({ id: g.id, count: g.count, name: g.name, image: g.image }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      const index = typeof this.selectedId === 'number' ? this.selectedId : parseInt(String(this.selectedId), 10);
-      const state = { selectedId: isNaN(index) ? 0 : index, showImages: this.showImages };
-      localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(state));
+      const state = JSON.parse(savedState) as StoredState;
+      const savedIndex = this.parseStoredSelectedIndex(state);
+      if (savedIndex !== null) {
+        this.selectedId = savedIndex;
+      } else {
+        const rawId = typeof state.selectedId === 'number' ? state.selectedId : parseInt(String(state.selectedId), 10);
+        const idx = this.groups.findIndex(g => g.id === state.selectedId || g.id === rawId);
+        if (idx >= 0) this.selectedId = idx;
+      }
+      if (typeof state.showImages === 'boolean') this.showImages = state.showImages;
     } catch (_) {}
   }
 
+  private parseStoredSelectedIndex(state: StoredState): number | null {
+    const raw = state.selectedId;
+    const num = typeof raw === 'number' ? raw : parseInt(String(raw), 10);
+    if (isNaN(num) || num < 0 || num >= this.groups.length) return null;
+    return num;
+  }
+
+  private reindexGroups(): void {
+    this.groups.forEach((g, i) => { g.id = i; });
+  }
+
+  private clampSelectedIndex(index: number): number {
+    if (this.groups.length === 0) return 0;
+    return Math.min(Math.max(0, index), this.groups.length - 1);
+  }
+
+  private saveToStorage(): void {
+    try {
+      const data: StoredTasbeehGroup[] = this.groups.map(g => ({ id: g.id, count: g.count, name: g.name, image: g.image }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const index = this.getSelectedIndexForStorage();
+      localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify({ selectedId: index, showImages: this.showImages }));
+    } catch (_) {}
+  }
+
+  private getSelectedIndexForStorage(): number {
+    const raw = typeof this.selectedId === 'number' ? this.selectedId : parseInt(String(this.selectedId), 10);
+    return isNaN(raw) ? 0 : raw;
+  }
+
   /** Preload group images so the browser caches them for instant display when switching groups. */
-  private preloadImages() {
+  private preloadImages(): void {
     this.groups.forEach(gr => {
       if (!gr.image) return;
       const img = new Image();
@@ -105,65 +122,61 @@ export class AppComponent implements OnInit {
     });
   }
 
-  addCount() {
+  addCount(): void {
     this.selectedGroup.count++;
     this.saveToStorage();
   }
-  resetCount() {
+
+  resetCount(): void {
     this.selectedGroup.count = 0;
     this.saveToStorage();
   }
-  openSettingsModal() {
+
+  openSettingsModal(): void {
     this.showSettingsModal = true;
     this.showAddForm = false;
     this.editingId = null;
     this.resetAddForm();
   }
 
-  closeSettingsModal() {
+  closeSettingsModal(): void {
     this.showSettingsModal = false;
     this.showAddForm = false;
     this.editingId = null;
     this.resetAddForm();
   }
 
-  resetAddForm() {
+  resetAddForm(): void {
     this.newTasbeehName = '';
     this.newTasbeehImageUrl = '';
     this.uploadError = '';
   }
 
-  onModalImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files && input.files[0];
-    this.uploadError = '';
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.uploadError = 'Please choose an image (JPG, PNG, GIF, WebP).';
-      input.value = '';
-      return;
-    }
-    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-      this.uploadError = `Image must be under ${MAX_IMAGE_SIZE_MB}MB.`;
-      input.value = '';
-      return;
-    }
-    this.uploadInProgress = true;
-    this.uploadImageToImage2Url(file).subscribe(
-      (url) => {
-        this.uploadInProgress = false;
-        this.newTasbeehImageUrl = url;
-        this.uploadError = '';
-      },
-      (err) => {
-        this.uploadInProgress = false;
-        this.uploadError = err.message || 'Upload failed. Try again.';
-      }
-    );
-    input.value = '';
+  openAddForm(): void {
+    this.showAddForm = true;
+    this.resetAddForm();
   }
 
-  submitNewTasbeeh() {
+  cancelAddForm(): void {
+    this.showAddForm = false;
+    this.resetAddForm();
+  }
+
+  onModalImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    this.uploadError = '';
+    if (!file) return;
+    const err = this.validateImageFile(file);
+    if (err) {
+      this.uploadError = err;
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
+    (event.target as HTMLInputElement).value = '';
+    this.uploadImageAndThen(file, url => { this.newTasbeehImageUrl = url; });
+  }
+
+  submitNewTasbeeh(): void {
     const name = this.newTasbeehName.trim();
     if (!name) return;
     this.groups.push(new TasbeehGroup(this.groups.length, 0, name, this.newTasbeehImageUrl));
@@ -174,51 +187,57 @@ export class AppComponent implements OnInit {
     this.saveToStorage();
   }
 
-  openEditForm(gr: TasbeehGroup) {
+  openEditForm(gr: TasbeehGroup): void {
     this.editingId = gr.id;
     this.editTasbeehName = gr.name;
     this.editTasbeehImageUrl = null;
     this.uploadError = '';
   }
 
-  cancelEdit() {
+  cancelEdit(): void {
     this.editingId = null;
     this.editTasbeehName = '';
     this.editTasbeehImageUrl = null;
     this.uploadError = '';
   }
 
-  onEditImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files && input.files[0];
+  onEditImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
     this.uploadError = '';
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.uploadError = 'Please choose an image (JPG, PNG, GIF, WebP).';
-      input.value = '';
+    const err = this.validateImageFile(file);
+    if (err) {
+      this.uploadError = err;
+      (event.target as HTMLInputElement).value = '';
       return;
     }
-    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-      this.uploadError = `Image must be under ${MAX_IMAGE_SIZE_MB}MB.`;
-      input.value = '';
-      return;
-    }
+    (event.target as HTMLInputElement).value = '';
+    this.uploadImageAndThen(file, url => { this.editTasbeehImageUrl = url; });
+  }
+
+  private validateImageFile(file: File): string | null {
+    if (!file.type.startsWith('image/')) return ERROR_IMAGE_TYPE;
+    if (file.size > MAX_IMAGE_BYTES) return ERROR_IMAGE_SIZE;
+    return null;
+  }
+
+  private uploadImageAndThen(file: File, onSuccess: (url: string) => void): void {
     this.uploadInProgress = true;
+    this.uploadError = '';
     this.uploadImageToImage2Url(file).subscribe(
       (url) => {
         this.uploadInProgress = false;
-        this.editTasbeehImageUrl = url;
+        onSuccess(url);
         this.uploadError = '';
       },
       (err) => {
         this.uploadInProgress = false;
-        this.uploadError = err.message || 'Upload failed. Try again.';
+        this.uploadError = err?.message || ERROR_UPLOAD_FAILED;
       }
     );
-    input.value = '';
   }
 
-  submitEditTasbeeh() {
+  submitEditTasbeeh(): void {
     if (this.editingId === null) return;
     const name = this.editTasbeehName.trim();
     if (!name) return;
@@ -231,12 +250,12 @@ export class AppComponent implements OnInit {
     this.saveToStorage();
   }
 
-  deleteTasbeeh(index: number) {
+  deleteTasbeeh(index: number): void {
     if (index < 0 || this.groups.length <= 1) return;
     if (!confirm('Delete this tasbeeh?')) return;
     if (this.editingId === this.groups[index].id) this.cancelEdit();
     this.groups.splice(index, 1);
-    for (let i = 0; i < this.groups.length; i++) this.groups[i].id = i;
+    this.reindexGroups();
     if (this.selectedId === index) this.selectedId = index > 0 ? index - 1 : 0;
     else if (this.selectedId > index) this.selectedId--;
     this.changeGroup();
@@ -255,22 +274,8 @@ export class AppComponent implements OnInit {
       });
   }
 
-  changeGroup() {
+  changeGroup(): void {
     this.selectedGroup = this.groups[this.selectedId];
     this.saveToStorage();
-  }
-}
-
-class TasbeehGroup {
-  id = 0;
-  count = 0;
-  name = '';
-  image = '';
-
-  constructor(i: number, c: number, n: string, img = '') {
-    this.id = i;
-    this.count = c;
-    this.name = n;
-    this.image = img;
   }
 }
