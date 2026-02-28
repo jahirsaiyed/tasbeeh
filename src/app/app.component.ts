@@ -14,7 +14,6 @@ const STORAGE_STATE_KEY = 'tasbeehState';
 })
 export class AppComponent implements OnInit {
   groups = [
-    new TasbeehGroup(0, 0, '-- Select Tasbeeh --', ''),
     new TasbeehGroup(1, 0, 'Kalima', 'https://image2url.com/r2/default/images/1772265243982-0d098860-3900-45d0-8518-d9d2f2ce2501.jpg'),
     new TasbeehGroup(2, 0, 'Istigfar', 'https://image2url.com/r2/default/images/1772265308437-9e5e0028-a118-48cf-b65b-ab580fc44a23.jpg'),
     new TasbeehGroup(3, 0, 'Midad', 'https://image2url.com/r2/default/images/1772265331414-e56c776d-5e95-4398-adb4-2a3c877ae5c9.jpg'),
@@ -25,9 +24,13 @@ export class AppComponent implements OnInit {
   selectedGroup = this.groups[1];
   showImages = true;
 
-  showNewModal = false;
+  showSettingsModal = false;
+  showAddForm = false;
+  editingId: number | null = null;
   newTasbeehName = '';
   newTasbeehImageUrl = '';
+  editTasbeehName = '';
+  editTasbeehImageUrl: string | null = null;
   uploadInProgress = false;
   uploadError = '';
 
@@ -90,15 +93,21 @@ export class AppComponent implements OnInit {
     this.selectedGroup.count = 0;
     this.saveToStorage();
   }
-  openNewModal() {
-    this.showNewModal = true;
-    this.newTasbeehName = '';
-    this.newTasbeehImageUrl = '';
-    this.uploadError = '';
+  openSettingsModal() {
+    this.showSettingsModal = true;
+    this.showAddForm = false;
+    this.editingId = null;
+    this.resetAddForm();
   }
 
-  closeNewModal() {
-    this.showNewModal = false;
+  closeSettingsModal() {
+    this.showSettingsModal = false;
+    this.showAddForm = false;
+    this.editingId = null;
+    this.resetAddForm();
+  }
+
+  resetAddForm() {
     this.newTasbeehName = '';
     this.newTasbeehImageUrl = '';
     this.uploadError = '';
@@ -140,7 +149,77 @@ export class AppComponent implements OnInit {
     this.groups.push(new TasbeehGroup(this.groups.length, 0, name, this.newTasbeehImageUrl));
     this.selectedId = this.groups.length - 1;
     this.changeGroup();
-    this.closeNewModal();
+    this.showAddForm = false;
+    this.resetAddForm();
+    this.saveToStorage();
+  }
+
+  openEditForm(gr: TasbeehGroup) {
+    this.editingId = gr.id;
+    this.editTasbeehName = gr.name;
+    this.editTasbeehImageUrl = null;
+    this.uploadError = '';
+  }
+
+  cancelEdit() {
+    this.editingId = null;
+    this.editTasbeehName = '';
+    this.editTasbeehImageUrl = null;
+    this.uploadError = '';
+  }
+
+  onEditImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files[0];
+    this.uploadError = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.uploadError = 'Please choose an image (JPG, PNG, GIF, WebP).';
+      input.value = '';
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      this.uploadError = `Image must be under ${MAX_IMAGE_SIZE_MB}MB.`;
+      input.value = '';
+      return;
+    }
+    this.uploadInProgress = true;
+    this.uploadImageToImage2Url(file).subscribe(
+      (url) => {
+        this.uploadInProgress = false;
+        this.editTasbeehImageUrl = url;
+        this.uploadError = '';
+      },
+      (err) => {
+        this.uploadInProgress = false;
+        this.uploadError = err.message || 'Upload failed. Try again.';
+      }
+    );
+    input.value = '';
+  }
+
+  submitEditTasbeeh() {
+    if (this.editingId === null) return;
+    const name = this.editTasbeehName.trim();
+    if (!name) return;
+    const gr = this.groups.find(g => g.id === this.editingId);
+    if (gr) {
+      gr.name = name;
+      if (this.editTasbeehImageUrl !== null) gr.image = this.editTasbeehImageUrl;
+    }
+    this.cancelEdit();
+    this.saveToStorage();
+  }
+
+  deleteTasbeeh(index: number) {
+    if (index <= 0) return;
+    if (!confirm('Delete this tasbeeh?')) return;
+    if (this.editingId === this.groups[index].id) this.cancelEdit();
+    this.groups.splice(index, 1);
+    for (let i = 0; i < this.groups.length; i++) this.groups[i].id = i;
+    if (this.selectedId === index) this.selectedId = index > 0 ? index - 1 : 0;
+    else if (this.selectedId > index) this.selectedId--;
+    this.changeGroup();
     this.saveToStorage();
   }
 

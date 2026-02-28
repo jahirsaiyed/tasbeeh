@@ -1,29 +1,66 @@
-<!-- New Tasbeeh modal -->
-<div class="modal-overlay" *ngIf="showNewModal" (click)="closeNewModal()">
-  <div class="modal-dialog" (click)="$event.stopPropagation()">
+<!-- Settings modal -->
+<div class="modal-overlay" *ngIf="showSettingsModal" (click)="closeSettingsModal()">
+  <div class="modal-dialog modal-dialog-settings" (click)="$event.stopPropagation()">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add new tasbeeh</h5>
-        <button type="button" class="modal-close" aria-label="Close" (click)="closeNewModal()">&times;</button>
+        <h5 class="modal-title">Manage tasbeehs</h5>
+        <button type="button" class="modal-close" aria-label="Close" (click)="closeSettingsModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-group">
-          <label for="newTasbeehName">Name of dhikr</label>
-          <input type="text" id="newTasbeehName" class="form-control" [(ngModel)]="newTasbeehName" placeholder="e.g. Kalima" />
+        <!-- List view -->
+        <div *ngIf="!showAddForm && editingId === null">
+          <button type="button" class="btn btn-primary btn-block mb-3" (click)="showAddForm = true; resetAddForm()">Add new tasbeeh</button>
+          <ul class="settings-list">
+            <li *ngFor="let gr of groups; let i = index" class="settings-list-item">
+              <span class="settings-list-name">{{ gr.name }}</span>
+              <span class="settings-list-actions" *ngIf="i > 0">
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openEditForm(gr)">Edit</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteTasbeeh(i)">Delete</button>
+              </span>
+            </li>
+          </ul>
         </div>
-        <div class="form-group">
-          <label>Image (optional)</label>
-          <input type="file" #modalImageInput style="display:none" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onModalImageSelected($event)" />
-          <button type="button" class="btn btn-outline-secondary btn-block" (click)="modalImageInput.click()" [disabled]="uploadInProgress">
-            {{ uploadInProgress ? 'Uploading…' : (newTasbeehImageUrl ? 'Image uploaded' : 'Upload image') }}
-          </button>
-          <p class="text-muted small mt-1 mb-0" *ngIf="newTasbeehImageUrl">Image will be stored with this tasbeeh.</p>
-          <p class="text-danger small mt-1 mb-0" *ngIf="uploadError">{{ uploadError }}</p>
+        <!-- Add form -->
+        <div *ngIf="showAddForm && editingId === null">
+          <h6 class="mb-3">Add new tasbeeh</h6>
+          <div class="form-group">
+            <label for="newTasbeehName">Name of dhikr</label>
+            <input type="text" id="newTasbeehName" class="form-control" [(ngModel)]="newTasbeehName" placeholder="e.g. Kalima" />
+          </div>
+          <div class="form-group">
+            <label>Image (optional)</label>
+            <input type="file" #modalImageInput style="display:none" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onModalImageSelected($event)" />
+            <button type="button" class="btn btn-outline-secondary btn-block" (click)="modalImageInput.click()" [disabled]="uploadInProgress">
+              {{ uploadInProgress ? 'Uploading…' : (newTasbeehImageUrl ? 'Image uploaded' : 'Upload image') }}
+            </button>
+            <p class="text-muted small mt-1 mb-0" *ngIf="newTasbeehImageUrl">Image will be stored with this tasbeeh.</p>
+            <p class="text-danger small mt-1 mb-0" *ngIf="uploadError">{{ uploadError }}</p>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="showAddForm = false; resetAddForm()">Cancel</button>
+            <button type="button" class="btn btn-primary" (click)="submitNewTasbeeh()" [disabled]="!newTasbeehName.trim()">Add</button>
+          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeNewModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="submitNewTasbeeh()" [disabled]="!newTasbeehName.trim()">Add</button>
+        <!-- Edit form -->
+        <div *ngIf="editingId !== null">
+          <h6 class="mb-3">Edit tasbeeh</h6>
+          <div class="form-group">
+            <label for="editTasbeehName">Name of dhikr</label>
+            <input type="text" id="editTasbeehName" class="form-control" [(ngModel)]="editTasbeehName" />
+          </div>
+          <div class="form-group">
+            <label>Image (optional)</label>
+            <input type="file" #editImageInput style="display:none" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onEditImageSelected($event)" />
+            <button type="button" class="btn btn-outline-secondary btn-block" (click)="editImageInput.click()" [disabled]="uploadInProgress">
+              {{ uploadInProgress ? 'Uploading…' : (editTasbeehImageUrl !== null ? 'Image updated' : 'Upload new image') }}
+            </button>
+            <p class="text-danger small mt-1 mb-0" *ngIf="uploadError">{{ uploadError }}</p>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+            <button type="button" class="btn btn-primary" (click)="submitEditTasbeeh()" [disabled]="!editTasbeehName.trim()">Save</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -44,7 +81,9 @@
                 <select class="controls-select" [(ngModel)]="selectedId" (change)="changeGroup()">
                   <option *ngFor="let gr of groups" [value]="gr.id">{{gr.name}}</option>
                 </select>
-                <button type="button" class="btn btn-outline-light btn-lg px-3" (click)="openNewModal()">New</button>
+                <button type="button" class="btn btn-outline-light btn-lg px-2" (click)="openSettingsModal()" title="Settings" aria-label="Settings">
+                  <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
                 <button type="button" class="btn btn-outline-light btn-lg px-4" (click)="resetCount()">Reset</button>
                 <label class="image-toggle-label mb-0">
                   <input type="checkbox" [(ngModel)]="showImages" (ngModelChange)="saveToStorage()" />
