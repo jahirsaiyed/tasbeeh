@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Http } from '@angular/http';
+import 'rxjs/add/operator/map';
+
+const IMAGE2URL_UPLOAD = 'https://www.image2url.com/api/upload';
+const MAX_IMAGE_SIZE_MB = 2;
 
 @Component({
   selector: 'app-root',
@@ -17,6 +22,14 @@ export class AppComponent implements OnInit {
   selectedId = 1;
   selectedGroup = this.groups[1];
   showImages = true;
+
+  showNewModal = false;
+  newTasbeehName = '';
+  newTasbeehImageUrl = '';
+  uploadInProgress = false;
+  uploadError = '';
+
+  constructor(private http: Http) {}
 
   ngOnInit() {
     this.preloadImages();
@@ -37,13 +50,71 @@ export class AppComponent implements OnInit {
   resetCount() {
     this.selectedGroup.count=0;
   }
-  addNewTasbeeh() {
-    const name = prompt('Name of dhikr');
-    if (name == null || name.trim() === '') return;
-    this.groups.push(new TasbeehGroup(this.groups.length, 0, name.trim(), ''));
+  openNewModal() {
+    this.showNewModal = true;
+    this.newTasbeehName = '';
+    this.newTasbeehImageUrl = '';
+    this.uploadError = '';
+  }
+
+  closeNewModal() {
+    this.showNewModal = false;
+    this.newTasbeehName = '';
+    this.newTasbeehImageUrl = '';
+    this.uploadError = '';
+  }
+
+  onModalImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files[0];
+    this.uploadError = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.uploadError = 'Please choose an image (JPG, PNG, GIF, WebP).';
+      input.value = '';
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      this.uploadError = `Image must be under ${MAX_IMAGE_SIZE_MB}MB.`;
+      input.value = '';
+      return;
+    }
+    this.uploadInProgress = true;
+    this.uploadImageToImage2Url(file).subscribe(
+      (url) => {
+        this.uploadInProgress = false;
+        this.newTasbeehImageUrl = url;
+        this.uploadError = '';
+      },
+      (err) => {
+        this.uploadInProgress = false;
+        this.uploadError = err.message || 'Upload failed. Try again.';
+      }
+    );
+    input.value = '';
+  }
+
+  submitNewTasbeeh() {
+    const name = this.newTasbeehName.trim();
+    if (!name) return;
+    this.groups.push(new TasbeehGroup(this.groups.length, 0, name, this.newTasbeehImageUrl));
     this.selectedId = this.groups.length - 1;
     this.changeGroup();
+    this.closeNewModal();
   }
+
+  private uploadImageToImage2Url(file: File) {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http
+      .post(IMAGE2URL_UPLOAD, formData)
+      .map((res) => {
+        const body = res.json();
+        if (body && body.url) return body.url as string;
+        throw new Error('No URL in response');
+      });
+  }
+
   changeGroup(){
     this.selectedGroup = this.groups[this.selectedId];
     console.log(this.selectedGroup.name);
