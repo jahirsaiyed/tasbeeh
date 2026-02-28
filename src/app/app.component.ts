@@ -8,11 +8,11 @@ import { Component } from '@angular/core';
 export class AppComponent {
   groups = [
     new TasbeehGroup(0, 0, '-- Select Tasbeeh --', ''),
-    new TasbeehGroup(1, 0, 'Kalima', 'kalima.jpg'),
-    new TasbeehGroup(2, 0, 'Istigfar', 'istigfar.jpg'),
-    new TasbeehGroup(3, 0, 'Midad', 'midad.jpg'),
-    new TasbeehGroup(4, 0, 'Durood', 'durood.jpg'),
-    new TasbeehGroup(5, 0, 'Names of Allah', 'names-of-allah.jpg')
+    new TasbeehGroup(1, 0, 'Kalima', 'https://i.postimg.cc/KzjcDSDF/Kalima.jpg'),
+    new TasbeehGroup(2, 0, 'Istigfar', 'https://i.postimg.cc/Y902zKzM/Istigfar.jpg'),
+    new TasbeehGroup(3, 0, 'Midad', 'https://i.postimg.cc/1tXRrhr9/midad.jpg'),
+    new TasbeehGroup(4, 0, 'Durood', 'https://i.postimg.cc/xC8j3D39/durood.jpg'),
+    new TasbeehGroup(5, 0, 'Names of Allah', 'https://i.postimg.cc/SsRQfFfS/names_of_allah.jpg')
   ];
   selectedId = 1;
   selectedGroup = this.groups[1];
