@@ -27,7 +27,8 @@ const DEFAULT_GROUP_DATA: StoredTasbeehGroup[] = [
   { id: 2, count: 0, name: 'Istigfar', image: 'https://image2url.com/r2/default/images/1772265308437-9e5e0028-a118-48cf-b65b-ab580fc44a23.jpg' },
   { id: 3, count: 0, name: 'Midad', image: 'https://image2url.com/r2/default/images/1772265331414-e56c776d-5e95-4398-adb4-2a3c877ae5c9.jpg' },
   { id: 4, count: 0, name: 'Durood', image: 'https://image2url.com/r2/default/images/1772265286311-318b6568-fe90-4832-a710-54f698a80717.jpg' },
-  { id: 5, count: 0, name: 'Names of Allah', image: 'https://image2url.com/r2/default/images/1772265352244-02d5704b-d45c-459a-833b-f8643c1217cf.jpg' }
+  { id: 5, count: 0, name: 'Names of Allah', image: 'https://image2url.com/r2/default/images/1772265352244-02d5704b-d45c-459a-833b-f8643c1217cf.jpg' },
+  { id: 6, count: 0, name: 'Dhikr for grave', image: 'https://image2url.com/r2/default/images/1773068980475-0352f556-a158-4519-a4e2-da4d17323ae9.jpeg' }
 ];
 
 export function createDefaultGroups(): TasbeehGroup[] {
